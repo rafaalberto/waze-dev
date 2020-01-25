@@ -1,6 +1,7 @@
 const axios = require('axios');
 const Developer = require('../models/Developer');
 const { convertStringToArray } = require('../utils/converter');
+const { findConnections, sendMessage } = require('../websocket');
 
 const store = async (request) => {
     const { github_username, techs, latitude, longitude } = request.body;
@@ -26,6 +27,9 @@ const store = async (request) => {
             technologies,
             location
         });
+
+        const sendSocketMessageTo = findConnections({ latitude, longitude }, technologies);
+        sendMessage(sendSocketMessageTo, 'newDeveloper', developer);
     }
     return developer;
 }

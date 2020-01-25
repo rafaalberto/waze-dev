@@ -5,6 +5,7 @@ import { requestPermissionsAsync, getCurrentPositionAsync } from 'expo-location'
 import { MaterialIcons } from '@expo/vector-icons';
 
 import api from '../services/api';
+import { connect, disconnect, subscribeToNewDevs } from '../services/socket';
 
 function Main({ navigation }) {
     const [currentRegion, setCurrentRegion] = useState(null);
@@ -31,6 +32,16 @@ function Main({ navigation }) {
         loadInitialPosition();
     }, []);
 
+    useEffect(() => {
+        subscribeToNewDevs(dev => setDevelopers([...developers, dev]));
+    }, [developers]);
+
+    function setupWebsocket() {
+        disconnect();
+        const { latitude, longitude } = currentRegion;
+        connect(latitude, longitude, techs);
+    }
+
     async function loadDevs() {
         const { latitude, longitude } = currentRegion;
         const response = await api.get('/search', {
@@ -41,6 +52,7 @@ function Main({ navigation }) {
             }
         });
         setDevelopers(response.data.developers);
+        setupWebsocket();
     }
 
     function handleRegionChanged(region) {
@@ -67,7 +79,7 @@ function Main({ navigation }) {
                         }}>
                             <View style={styles.callout}>
                                 <Text style={styles.devName}>{dev.name}</Text>
-                                <Text style={styles.devBio}>{dev.bio}</Text>
+                                <Text style={styles.devBio}>{dev.biography}</Text>
                                 <Text style={styles.devTechs}>{dev.technologies.join(', ')}</Text>
                             </View>
                         </Callout>

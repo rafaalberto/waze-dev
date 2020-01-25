@@ -1,10 +1,13 @@
 const express = require('express');
-const http = require('http');
 const app = express();
+const http = require('http');
 const server = http.Server(app);
 
 const cors = require('cors');
 const routes = require('./routes');
+const { setupWebsocket } = require('./websocket');
+
+setupWebsocket(server);
 
 require('./database');
 
