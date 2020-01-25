@@ -19,7 +19,8 @@ const search = async (request, response) => {
             },
         },
     });
-    return developers;
+    const devs = { developers };
+    return devs;
 }
 
 module.exports = { search };
